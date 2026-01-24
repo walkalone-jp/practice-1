@@ -6,21 +6,35 @@ export default function App() {
   const [error, setError] = useState(null)
   const [title, setTitle] = useState('')
   const [time, setTime] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
   const onChangeTitle = (e) => setTitle(e.target.value)
   const onChangeTime = (e) => setTime(e.target.value)
+  const handleDelete = async (id) => {
+    const { error: deleteError } = await supabase
+      .from("study-record")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      setError(deleteError.message);
+      return;
+    }
+
+    setRecords((prevRecords) =>
+      prevRecords.filter((r) => r.id !== id)
+    );
+  };
+
+  // 追加（INSERT）
   const onClickAdd = async () => {
     if (!title || !time) return
-
-    // console.log("[onClickAdd] start", { title, time })
 
     const { data, error } = await supabase
       .from("study-record")
       .insert({ title, time: Number(time) })
       .select("id, title, time")
       .single()
-
-    // console.log("[onClickAdd] result", { data, error })
 
     if (error) {
       setError(error.message)
@@ -42,17 +56,21 @@ export default function App() {
 
   // 一覧取得（SELECT）
   const fetchNotes = async () => {
-    // console.log("[fetchNotes] start");
+    setIsLoading(true)
+
     const { data, error } = await supabase
       .from("study-record")
       .select("id, title, time")
-    // console.log("[fetchNotes] result", { data, error });
 
     if (error) {
-      setError(error.message);
-      return;
+      setError(error.message)
+      setRecords([])
+    } else {
+      setError(null)
+      setRecords(data ?? [])  // dataがnullの場合は空配列をセット
     }
-    setRecords(data ?? []);  // dataがnullの場合は空配列をセット
+
+    setIsLoading(false)
   };
 
   // 初回レンダリング時に一覧取得
@@ -68,11 +86,18 @@ export default function App() {
       <button onClick={onClickAdd}>登録</button>
       {error && <p style={{ color: "red" }}>エラー: {error}</p>}
       {(!title || !time) && <p>＊未入力あり</p>}
+      {isLoading && <p>Loading...</p>}
       <div>
         <ul>
           {records.map((record) => (
             <li key={record.id}>
               内容：{record.title}、時間：{record.time}時間
+              <button
+                style={{ marginLeft: "20px" }}
+                onClick={() => handleDelete(record.id)}
+              >
+                X
+              </button>
             </li>
           ))}
         </ul>
