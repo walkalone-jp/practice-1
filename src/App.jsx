@@ -82,7 +82,7 @@ export default function App() {
     <>
       <h3>サンプル</h3>
       <div>内容：<input value={title} onChange={onChangeTitle} /></div>
-      <div>時間：<input value={time} onChange={onChangeTime} />時間</div>
+      <div>時間：<input value={time} onChange={onChangeTime} /> 時間</div>
       <button onClick={onClickAdd}>登録</button>
       {error && <p style={{ color: "red" }}>エラー: {error}</p>}
       {(!title || !time) && <p>＊未入力あり</p>}
@@ -106,4 +106,6 @@ export default function App() {
     </>
   )
 }
+
+
 
