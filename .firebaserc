@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "practice-1-app"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }
